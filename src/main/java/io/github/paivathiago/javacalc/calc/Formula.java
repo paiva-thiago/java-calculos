@@ -1,10 +1,11 @@
-package br.com.thiagopaiva.java.calc;
+package io.github.paivathiago.javacalc.calc;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.thiagopaiva.java.exceptions.FormulaException;
+import io.github.paivathiago.javacalc.exceptions.FormulaException;
 /**
  * <p>Classe destinada a calcular fórmulas matemáticas.</p>
  * 
@@ -17,25 +18,25 @@ import br.com.thiagopaiva.java.exceptions.FormulaException;
  */
 public class Formula {
 	private String sFormula;
-	private boolean erro;
-	private List<String> params;
+	private boolean error;
+	private final List<String> params;
 	/**
-	 * Para construir a fórmula é necessário dois argumentos: a fórmula e os parâmetros da fórmula. 
-	 * 
+	 * Para construir a fórmula é necessário dois argumentos: a fórmula e os parâmetros da fórmula.
+	 *
 	 * @param formula
-	 * A fórmula é definida como um cálculo realizado em um editor de planilhas, mas com os campos 
+	 * A fórmula é definida como um cálculo realizado em um editor de planilhas, mas com os campos
 	 * definidos através dos caracteres @ e #, com um número entre eles. Exemplo:
 	 * <p>
 	 *  <code>
-	 *  	@0# + @1#
+	 *  	&#064;0#  + @1#
 	 *  </code>
-	 * </p> 
+	 * </p>
 	 *  Definirá uma soma entre dois valores. Estes valo
-	 * 
-	 * Eles serão associados através de um template, em que os camoos 
-	 * 
-	 * @param parametros
-	 * São os parâmetros que serão associados com os campos da fórmula, na ordem em que os mesmos foram definidos. 
+	 *
+	 * Eles serão associados através de um template, em que os camoos
+	 *
+	 * @param params
+	 * São os parâmetros que serão associados com os campos da fórmula, na ordem em que os mesmos foram definidos.
 	 * Eles devem ser separados por um ponto-e-vírgula (;). Baseando-se no exemplo da fórmula, temos como exemplo:
 	 * <p>
 	 * <code>
@@ -44,11 +45,11 @@ public class Formula {
 	 * </p>
 	 * Ao mesclar os valores, a fórmula calculará 40+2, tendo seu resultado obtido através do método <code>getResultado()</code>.
 	 */
-	public Formula(String formula, String parametros) {
-		this.erro=true;
-		String[] aPrms  = parametros.split(";");
+	public Formula(String formula, String params) {
+		this.error =true;
+		String[] aPrms  = params.split(";");
 		this.params = new ArrayList<String>();
-		valida(formula,aPrms);
+		formulaValidation(formula,aPrms);
 		
 	}
 	private int countChar(char s,String str) {
@@ -60,66 +61,64 @@ public class Formula {
 		}
 		return count;
 	}
-	private void valida(String formula, String[] aParams) {
+	private void formulaValidation(String formula, String[] aParams) {
 		this.sFormula=formula;
 		if (countChar('(',formula)!=countChar(')',formula)) {
-			this.erro=true;
+			this.error =true;
 			return;
 		}
-		if(parametrosValidos(formula,aParams.length)) {
-			this.erro=false;			
+		if(validParams(formula,aParams.length)) {
+			this.error =false;
 			int x=0;
 			for(String param:params) {				
 				this.sFormula=this.sFormula.replace(param, aParams[x]);
 				x++;
 			}
 			try {
-				new Calculadora(this.sFormula).parse();			
-				this.getCalculo();
-				this.erro=false;
+				new Calculator(this.sFormula).parse();
+				this.getCalc();
+				this.error =false;
 			}catch(FormulaException e) {
-				this.erro=true;
+				this.error =true;
 			}
 		}
 	}
-	private boolean parametrosValidos(String formula, int qtParametros) {
-		int 	ultimoFechamento 		= 	0;
+	private boolean validParams(String formula, int qtParams) {
+		int 	lastClosing   		    = 	0;
 		int 	qtde					= 	0;
 		int  	c						=	0;
-		int     max 					= 0;
+		int     max 					=   0;
 		while(c<formula.length()) {
 			char crc = formula.charAt(c);
 			if(crc=='@') {
-				ultimoFechamento=formula.indexOf('#',c)+1;
-				String item = formula.substring(c,ultimoFechamento);
-				Integer teste 	 = null;				
+				lastClosing=formula.indexOf('#',c)+1;
+				String item = formula.substring(c,lastClosing);
+				Integer parsingTest 	 = null;
 				try {
-					teste = Integer.parseInt(item.substring(1,item.length()-1));
-					if((teste<0)||(teste>max)) {						
+					parsingTest = Integer.parseInt(item.substring(1,item.length()-1));
+					if((parsingTest<0)||(parsingTest>max)) {
 						throw new FormulaException("Erro no formato do campo!");
-					}else if (this.params.indexOf(item)==-1) {
+					}else if (!this.params.contains(item)) {
 						max++;
 						this.params.add(item);
 						qtde++;
 					}					
-				}catch(FormulaException fe) {
-					return false;
-				}catch(Exception e) {
+				} catch(FormulaException e) {
 					return false;
 				}
-			  c=ultimoFechamento;
+			  c=lastClosing;
 			}else{
 			  c++;
 			}
 		}
-		return (qtde==qtParametros);		
+		return (qtde==qtParams);
 	}
 	/**
 	 * 
-	 * @return Informa se a fórmula é válida. 
+	 * @return Returns true if the formula is valid
 	 */
-	public boolean valido() {
-		return !this.erro;
+	public boolean valid() {
+		return !this.error;
 	}
 	/**
 	 * 
@@ -127,29 +126,23 @@ public class Formula {
 	 * @deprecated use getCalculo.
 	 */
 	@Deprecated
-	public double getResultado(){
-		if(this.valido()) {
-			double resultado = this.eval(this.sFormula);
-			return BigDecimal.valueOf(resultado).setScale(5,BigDecimal.ROUND_HALF_DOWN).doubleValue();
+	public double getResult(){
+		if(this.valid()) {
+			double result = this.eval(this.sFormula);
+			return BigDecimal.valueOf(result).setScale(5, RoundingMode.HALF_DOWN).doubleValue();
 		}else {
-			this.erro=true;
-			throw new FormulaException("ERRO NA FÓRMULA!:"+this.sFormula);
+			this.error =true;
+			throw new FormulaException("ERROR ON FORMULA: "+this.sFormula);
 		}
 	}
 
-	/**
-	 * Fórmula que fará o parse da expressão em String. <a href="https://stackoverflow.com/a/26227947/4271396">Método baseado na solução proposta por Boann no StackOverFlow</a>.
-	 * 
-	 * @param str - a expressão, em formato String, que será "traduzida" para uma fórmula matemática.
-	 * @return o resultado do cálculo. Em caso de falha, será retornado 0 e lançado um {@link FormulaException}.
-	 */
-	public double getCalculo(){
-		if(this.valido()) {
-			double resultado = new Calculadora(this.sFormula).parse();
-			return BigDecimal.valueOf(resultado).setScale(5,BigDecimal.ROUND_HALF_DOWN).doubleValue();
+	public double getCalc(){
+		if(this.valid()) {
+			double result = new Calculator(this.sFormula).parse();
+			return BigDecimal.valueOf(result).setScale(5, RoundingMode.HALF_DOWN).doubleValue();
 		}else {
-			this.erro=true;
-			throw new FormulaException("ERRO NA FÓRMULA!:"+this.sFormula);
+			this.error =true;
+			throw new FormulaException("ERROR ON FORMULA: "+this.sFormula);
 		}
 	}
 	/**

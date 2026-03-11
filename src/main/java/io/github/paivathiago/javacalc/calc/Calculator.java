@@ -1,19 +1,19 @@
-package br.com.thiagopaiva.java.calc;
+package io.github.paivathiago.javacalc.calc;
 
-import br.com.thiagopaiva.java.exceptions.FormulaException;
+import io.github.paivathiago.javacalc.exceptions.FormulaException;
 
-public class Calculadora {
-	private String str;
+class Calculator {
+	private final String str;
 	private int pos;
 	private int ch;
 	/**
-	 * Classe responsável pelo parse da expressão em String. <a href="https://stackoverflow.com/a/26227947/4271396">Baseado na solução proposta por Boann no StackOverFlow</a>.
+	 * This class is responsible by the  String parse expression. <a href="https://stackoverflow.com/a/26227947/4271396">Based on this solution proposed by Boann on StackOverFlow</a>.
 	 * 
-	 * @param str - a expressão, em formato String, que será "traduzida" para uma fórmula matemática. Ele instanciará o objeto, e seu resultado, se disponível, estará no método parse();
+	 * @param str - This expression will be translated by a math formula. It will create an object instance, and its result will be available on parse method;
 	 * 
 	 *  
 	 */
-	public Calculadora(String str) {
+	protected Calculator(String str) {
 		this.str = str;
 		this.pos = -1;
 	}
@@ -33,7 +33,7 @@ public class Calculadora {
 	}
 	/**
 	 * 
-	 * @return o resultado do c�lculo.Em caso de falha, ser� lan�ado um Exception, assim como nas valida��es na classe {@link Formula}.
+	 * @return The calc result. In case of failure, an Exception will be thrown, as on validations on {@link Formula} class.
 	 */
 	public double parse() {
 		nextChar();
@@ -77,7 +77,7 @@ public class Calculadora {
 		return operation();
 	}
 	private double operation() {
-		double x = 0;
+		double x;
 		int startPos = this.pos;
 		if (eat('(')) { // parentheses
 			x = parseExpression();
@@ -103,16 +103,13 @@ public class Calculadora {
 	private double switchFactor(int startPos) {
 		String func = str.substring(startPos, this.pos);
 		double x = parseFactor();
-		if (func.equals("sqrt"))
-			return Math.sqrt(x);
-		else if (func.equals("sin"))
-			return Math.sin(Math.toRadians(x));
-		else if (func.equals("cos"))
-			return Math.cos(Math.toRadians(x));
-		else if (func.equals("tan"))
-			return Math.tan(Math.toRadians(x));
-		else
-			throw new FormulaException("Unknown function: " + func);
+        return switch (func) {
+            case "sqrt" -> Math.sqrt(x);
+            case "sin" -> Math.sin(Math.toRadians(x));
+            case "cos" -> Math.cos(Math.toRadians(x));
+            case "tan" -> Math.tan(Math.toRadians(x));
+            default -> throw  new FormulaException("Unknown function: " + func);
+        };
 	}
 	
 	private boolean isNumber(int ch) {
