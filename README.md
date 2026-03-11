@@ -1,9 +1,9 @@
-# java-calculos
+# javacalc
 
-Classe destinada a calcular fórmulas matemáticas.
+Project designed to calculate mathematical formulas.
 
-Aplicação inspirada no [código do Boann no StackOverFlow](https://stackoverflow.com/a/26227947/4271396).
+# Usage 
 
-Demais explicações estão nos comentários dos códigos no diretório /src.
+See [Formula Test](src/test/java/io/github/paivathiago/javacalc/test/FormulaTest.java)
 
-www.thiagopaiva.com
+###### made by paiva-thiago
