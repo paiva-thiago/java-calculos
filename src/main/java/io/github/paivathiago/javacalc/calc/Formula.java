@@ -47,7 +47,7 @@ public class Formula {
 	public Formula(String formula, String params) {
 		this.error =true;
 		String[] aPrms  = params.split(";");
-		this.params = new ArrayList<String>();
+		this.params = new ArrayList<>();
 		formulaValidation(formula,aPrms);
 	}
 
@@ -85,20 +85,20 @@ public class Formula {
 	}
 
 	private boolean validParams(String formula, int qtParams) {
-		int 	lastClosing   		    = 	0;
-		int 	elementNumbers   		= 	0;
-		int  	c						=	0;
-		int     max 					=   0;
+		int 	lastClosing;
+		int 	elementNumbers=0;
+		int  	c=0;
+		int     max=0;
 		while(c<formula.length()) {
 			char crc = formula.charAt(c);
 			if(crc=='@') {
 				lastClosing=formula.indexOf('#',c)+1;
 				String item = formula.substring(c,lastClosing);
-				Integer parsingTest 	 = null;
+				int parsingTest;
 				try {
 					parsingTest = Integer.parseInt(item.substring(1,item.length()-1));
 					if((parsingTest<0)||(parsingTest>max)) {
-						throw new FormulaException("Erro no formato do campo!");
+						throw new FormulaException("Error on field format!");
 					}else if (!this.params.contains(item)) {
 						max++;
 						this.params.add(item);

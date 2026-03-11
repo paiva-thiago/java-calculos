@@ -18,7 +18,7 @@ public class FormulaTest {
 	
 	private final Logger log;
 	public FormulaTest() {
-		log = Logger.getLogger("Teste");
+		log = Logger.getLogger("Test");
 	}
 	
 	@Test
