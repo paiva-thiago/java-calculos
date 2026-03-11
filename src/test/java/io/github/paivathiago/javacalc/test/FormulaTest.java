@@ -16,7 +16,7 @@ public class FormulaTest {
 	
 	private Formula formula;
 	
-	private Logger log;
+	private final Logger log;
 	public FormulaTest() {
 		log = Logger.getLogger("Teste");
 	}
